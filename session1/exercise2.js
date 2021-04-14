@@ -15,7 +15,7 @@ function getRandomElementInArray(array)
     return array[Math.floor(Math.random() * array.length)];
 }
 //Ex4
-function findMissingElement(arr1, arr2)
+function findMissingElement(firstArray, secondArray)
 {
     var result = [];
     arr1.forEach(element => {
