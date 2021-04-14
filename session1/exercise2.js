@@ -18,8 +18,8 @@ function getRandomElementInArray(array)
 function findMissingElement(firstArray, secondArray)
 {
     var result = [];
-    arr1.forEach(element => {
-        if(arr2.indexOf(element) === -1) result.push(element);
+    firstArray.forEach(element => {
+        if(secondArray.indexOf(element) === -1) result.push(element);
     });
     return result;
 }
