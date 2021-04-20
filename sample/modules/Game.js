@@ -39,13 +39,12 @@ export class Game extends Node {
             cardsArray.push(card);
         }
         const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
-        this.createBoard(shuffleCards);
+        this.createBoard(cardsArray.concat(cardsArray));
     }
 
     createBoard(array) {
         array.forEach((arr, index) => {
-            let card = new Card(index, arr.name);
-            card.face = arr.img;
+            let card = new Card(index, arr.name, arr.img);
             let column = index % 5;
             let row = Math.floor(index / 5);
             const SIZE_IMG = 100;
@@ -74,8 +73,8 @@ export class Game extends Node {
 
     checkForMatch() {
         if (this.firstCard.value === this.secondCard.value) {
-            this.firstCard.active = false;
-            this.secondCard.active = false;
+            this.firstCard.hideCard();
+            this.secondCard.hideCard();
             this.updateScore(200);
         } else {
             this.firstCard.showCover();

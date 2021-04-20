@@ -1,10 +1,10 @@
 import { Sprite } from "../lib/Sprite.js"
 
 export class Card extends Sprite {
-    constructor(index, value) {
+    constructor(index, value, face) {
         super();
         this._initScaleCard();
-        this._initCard(index, value);
+        this._initCard(index, value, face);
     }
 
     _initScaleCard() {
@@ -12,36 +12,35 @@ export class Card extends Sprite {
         this.height = 100;
     }
 
-    _initCard(index, value) {
-        this._index = index;
-        this._value = value;
-        this._cover = "./img/cardBg.jpg";
-        this._face = "";
-        this.path = this._cover;
+    _initCard(index, value, face) {
+        this.index = index;
+        this.value = value;
+        this.cover = "./img/cardBg.jpg";
+        this.face = face;
+        this.path = this.cover;
     }
 
     _initElement() {
         super._initElement();
-        this.elm.style.border = "1px solid black";
     }
 
     showFace() {
-        this.path = this._face;
+        let timeline = gsap.timeline();
+        timeline.to(this, {duration: 0.2, scaleX: 0});
+        timeline.set(this, {setImage: this.face});
+        timeline.to(this, {duration: 0.2, scaleX: 1});
     }
 
     showCover() {
-        this.path = this._cover;
+        let timeline = gsap.timeline();
+        timeline.to(this, {duration: 0.2, scaleX: 0});
+        timeline.set(this, {setImage: this.cover});
+        timeline.to(this, {duration: 0.2, scaleX: 1});
     }
-
-    set face(img) {
-        return this._face = img;
-    }
-
-    get value () {
-        return this._value;
-    }
-
-    get index () {
-        return this._index;
+    hideCard() {
+        let timeline = gsap.timeline();
+        timeline.set(this, {zIndex: 1, delay: 0.2});
+        timeline.to(this, {duration: 0.5, opacity: 0, scale: 3, active: false});
+        
     }
 }

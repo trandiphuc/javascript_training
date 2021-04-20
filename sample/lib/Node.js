@@ -3,10 +3,15 @@ export class Node {
         this._initElement();
         this._x = 0;
         this._y = 0;
+        this._zIndex = 0;
         this._width = 0;
         this._height = 0;
         this._active = true;
         this.children = [];
+        this._scaleX = 1;
+        this._scaleY = 1;
+        this._opacity = 1;
+        this._scale = 1;
     }
 
     _initElement() {
@@ -14,7 +19,41 @@ export class Node {
         this.elm.node = this;
         this.elm.style.position = "absolute";
     }
-
+    get scale () {
+        return this._scaleX;
+    }
+    set scale(value) {
+        this._scale = value;
+        this.elm.style.transform = `scale(${this._scale})`;
+    }
+    get zIndex() {
+        return this._zIndex;
+    }
+    set zIndex(value) {
+        this._zIndex = value;
+        this.elm.style.zIndex = this._zIndex;
+    }
+    get opacity() {
+        return this._opacity;
+    }
+    set opacity(value) {
+        this._opacity = value;
+        this.elm.style.opacity = this._opacity;
+    }
+    get scaleX() {
+        return this._scaleX;
+    }
+    set scaleX(value) {
+        this._scaleX = value;
+        this.elm.style.transform = `scaleX(${this._scaleX})`;
+    }
+    get scaleY () {
+        return this._scaleX;
+    }
+    set scaleY(value) {
+        this._scaleY = value;
+        this.elm.style.transform = `scaleY(${this._scaleY})`;
+    }
     get x() {
         return this._x;
     }
