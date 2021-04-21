@@ -39,7 +39,7 @@ export class Game extends Node {
             cardsArray.push(card);
         }
         const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
-        this.createBoard(cardsArray.concat(cardsArray));
+        this.createBoard(shuffleCards);
     }
 
     createBoard(array) {
@@ -47,13 +47,16 @@ export class Game extends Node {
             let card = new Card(index, arr.name, arr.img);
             let column = index % 5;
             let row = Math.floor(index / 5);
-            const SIZE_IMG = 100;
+            const SIZE_IMG = 110;
             let left = 150 + (SIZE_IMG * column);
             let top = 25 + (SIZE_IMG * row);
-            card.x = left;
-            card.y = top;
             this.addChild(card);
-            card.on("mousedown", this.onClickCard.bind(this));
+            gsap.to(card, {
+                duration: 3,
+                x: left,
+                y: top,
+                onComplete: () => card.on("mousedown", this.onClickCard.bind(this))
+            });
         });
     }
 
@@ -65,9 +68,13 @@ export class Game extends Node {
             this.firstCard.showFace();
         } else if (this.countClick === 2) {
             let card = evt.target.node;
-            this.secondCard = card;
+            if (card === this.firstCard) {
+                this.countClick--;
+                return;
+            }
+            this.secondCard = evt.target.node;
             this.secondCard.showFace();
-            setTimeout(this.checkForMatch.bind(this), 500);
+            setTimeout(this.checkForMatch.bind(this), 1000);
         } else if (this.countClick > 2) return;
     }
 
