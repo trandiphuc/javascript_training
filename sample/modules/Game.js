@@ -3,6 +3,7 @@ import { Sprite } from "../lib/Sprite.js";
 import { Label } from "../lib/Label.js";
 import { Card } from "../modules/Card.js";
 import { Button } from "../lib/Button.js";
+
 export class Game extends Node {
     initNewGame() {
         this.countClick = 0;
@@ -40,13 +41,6 @@ export class Game extends Node {
         let background = new Sprite("./img/trucxanh_bg.jpg");
         this.addChild(background);
     }
-    /*get score() {
-        return this._score;
-    }
-
-    set score(points) {
-        this._score = points;
-    }*/
 
     _initScoreText() {
         this.scoreText = new Label("Score: " + this.score, "red", "32px");
