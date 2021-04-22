@@ -6,6 +6,7 @@ export class Label extends Node {
         this._color = "";
         this._fontSize = "";
         this.fontStyle = [];
+        this.elm.style.font = "bold 20px arial,serif";
         if(text) this.text = text;
         if(color) this.color = color;
         if(fontSize) this.fontSize = fontSize;

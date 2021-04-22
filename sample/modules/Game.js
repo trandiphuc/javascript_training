@@ -2,8 +2,9 @@ import { Node } from "../lib/Node.js";
 import { Sprite } from "../lib/Sprite.js";
 import { Label } from "../lib/Label.js";
 import { Card } from "../modules/Card.js";
+import { Button } from "../lib/Button.js";
 export class Game extends Node {
-    init() {
+    initNewGame() {
         this.countClick = 0;
         this.pairRemain = 10;
         this.firstCard = null;
@@ -12,14 +13,32 @@ export class Game extends Node {
         this.timeline = gsap.timeline();
         this._initBoard();
         this._initCards();
+        this._initScoreText();
         this.elm.addEventListener("mousedown", e => {
             if (this.freezeClick) {
                 e.stopPropagation();
                 e.preventDefault();
             }
-        }, true)
+        }, true); 
     }
 
+    initPlayButton() {
+        let btn = new Button("PLAY", "black", "56px");
+        btn.x = 300;
+        btn.y = 200;
+        btn.elm.style.background = "transparent";
+        btn.on("click", () => {
+            this.resetGame();
+            this.initBackground();
+            this.initNewGame();
+        });
+        this.addChild(btn);
+    }
+
+    initBackground() {
+        let background = new Sprite("./img/trucxanh_bg.jpg");
+        this.addChild(background);
+    }
     get score() {
         return this._score;
     }
@@ -28,10 +47,6 @@ export class Game extends Node {
         this._score = points;
     }
 
-    _initBackground() {
-        let background = new Sprite("./img/trucxanh_bg.jpg");
-        this.addChild(background);
-    }
     _initScoreText() {
         this._score = 1000;
         this.scoreText = new Label("Score: " + this._score, "red", "32px");
@@ -110,7 +125,7 @@ export class Game extends Node {
         } else {
             this.firstCard.showCover();
             this.secondCard.showCover();
-            this.updateScore(-100);
+            this.updateScore(-1000);
         }
         setTimeout(() => {
             this.countClick = 0;
@@ -125,16 +140,26 @@ export class Game extends Node {
         this._score += points;
         this.scoreText.text = ("Score: " + this._score);
         if (this._score <= 0) {
-            while (this.board.elm.hasChildNodes()) {
-                this.board.elm.removeChild(this.board.elm.lastChild);
-            }
             this.showGameOverText("YOU LOSE");
+            this.endGame();
         }
         if (this.pairRemain <= 0) {
             this.showGameOverText("YOU WIN");
+            this.endGame();
         }
     }
 
+    endGame() {
+        while (this.board != null && this.board.elm.hasChildNodes()) {
+            this.board.elm.removeChild(this.board.elm.lastChild);
+        }
+        this.initPlayButton();
+    }
+    resetGame() {
+        while (this != null && this.elm.hasChildNodes()) {
+            this.elm.removeChild(this.elm.lastChild);
+        }
+    }
     showGameOverText(value) {
         this.gameOverText = new Label();
         this.gameOverText.x = 200;
