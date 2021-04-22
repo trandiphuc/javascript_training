@@ -10,6 +10,7 @@ export class Game extends Node {
         this.firstCard = null;
         this.secondCard = null;
         this.freezeClick = false;
+        this.score = 1000;
         this.timeline = gsap.timeline();
         this._initBoard();
         this._initCards();
@@ -39,17 +40,16 @@ export class Game extends Node {
         let background = new Sprite("./img/trucxanh_bg.jpg");
         this.addChild(background);
     }
-    get score() {
+    /*get score() {
         return this._score;
     }
 
     set score(points) {
         this._score = points;
-    }
+    }*/
 
     _initScoreText() {
-        this._score = 1000;
-        this.scoreText = new Label("Score: " + this._score, "red", "32px");
+        this.scoreText = new Label("Score: " + this.score, "red", "32px");
         this.scoreText.x = 32;
         this.scoreText.y = 32;
         this.addChild(this.scoreText);
@@ -69,7 +69,7 @@ export class Game extends Node {
         }
         const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
         this.freezeClick = true;
-        this.createBoard(cardsArray.concat(cardsArray));
+        this.createBoard(shuffleCards);
         setTimeout(() => {
             this.freezeClick = false;
         }, 4000);
@@ -125,7 +125,7 @@ export class Game extends Node {
         } else {
             this.firstCard.showCover();
             this.secondCard.showCover();
-            this.updateScore(-1000);
+            this.updateScore(-100);
         }
         setTimeout(() => {
             this.countClick = 0;
@@ -137,9 +137,9 @@ export class Game extends Node {
     }
 
     updateScore(points) {
-        this._score += points;
-        this.scoreText.text = ("Score: " + this._score);
-        if (this._score <= 0) {
+        this.score += points;
+        this.scoreText.text = ("Score: " + this.score);
+        if (this.score <= 0) {
             this.showGameOverText("YOU LOSE");
             this.endGame();
         }

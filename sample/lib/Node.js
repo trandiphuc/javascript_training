@@ -19,41 +19,7 @@ export class Node {
         this.elm.node = this;
         this.elm.style.position = "absolute";
     }
-    get scale () {
-        return this._scaleX;
-    }
-    set scale(value) {
-        this._scale = value;
-        this.elm.style.transform = `scale(${this._scale})`;
-    }
-    get zIndex() {
-        return this._zIndex;
-    }
-    set zIndex(value) {
-        this._zIndex = value;
-        this.elm.style.zIndex = this._zIndex;
-    }
-    get opacity() {
-        return this._opacity;
-    }
-    set opacity(value) {
-        this._opacity = value;
-        this.elm.style.opacity = this._opacity;
-    }
-    get scaleX() {
-        return this._scaleX;
-    }
-    set scaleX(value) {
-        this._scaleX = value;
-        this.elm.style.transform = `scaleX(${this._scaleX})`;
-    }
-    get scaleY () {
-        return this._scaleX;
-    }
-    set scaleY(value) {
-        this._scaleY = value;
-        this.elm.style.transform = `scaleY(${this._scaleY})`;
-    }
+
     get x() {
         return this._x;
     }
@@ -91,6 +57,41 @@ export class Node {
     set active(value) {
         this._active = value;
         this.elm.style.display = this._active ? "block" : "none";
+    }
+    get scaleX() {
+        return this._scaleX;
+    }
+    set scaleX(value) {
+        this._scaleX = value;
+        this.elm.style.transform = `scaleX(${this._scaleX})`;
+    }
+    get scaleY () {
+        return this._scaleX;
+    }
+    set scaleY(value) {
+        this._scaleY = value;
+        this.elm.style.transform = `scaleY(${this._scaleY})`;
+    }
+    get scale () {
+        return this._scaleX;
+    }
+    set scale(value) {
+        this._scale = value;
+        this.elm.style.transform = `scale(${this._scale})`;
+    }
+    get zIndex() {
+        return this._zIndex;
+    }
+    set zIndex(value) {
+        this._zIndex = value;
+        this.elm.style.zIndex = this._zIndex;
+    }
+    get opacity() {
+        return this._opacity;
+    }
+    set opacity(value) {
+        this._opacity = value;
+        this.elm.style.opacity = this._opacity;
     }
     
     addChild(node) {
