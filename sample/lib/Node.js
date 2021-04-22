@@ -92,7 +92,7 @@ export class Node {
         this._active = value;
         this.elm.style.display = this._active ? "block" : "none";
     }
-
+    
     addChild(node) {
         this.elm.appendChild(node.elm);
         this.children.push(node);

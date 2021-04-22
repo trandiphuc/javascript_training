@@ -1,8 +1,8 @@
 import {Label} from "../lib/Label.js";
 
 export class Button extends Label {
-    constructor() {
-        super();
+    constructor(text, color, fontsize) {
+        super(text, color, fontsize);
     }
     _initElement() {
         this.elm = document.createElement("button");

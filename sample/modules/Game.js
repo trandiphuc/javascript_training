@@ -4,12 +4,20 @@ import { Label } from "../lib/Label.js";
 import { Card } from "../modules/Card.js";
 export class Game extends Node {
     init() {
-        this._initBackground();
-        this._initScoreText()
-        this._initCards();
         this.countClick = 0;
+        this.pairRemain = 10;
         this.firstCard = null;
         this.secondCard = null;
+        this.freezeClick = false;
+        this.timeline = gsap.timeline();
+        this._initBoard();
+        this._initCards();
+        this.elm.addEventListener("mousedown", e => {
+            if (this.freezeClick) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true)
     }
 
     get score() {
@@ -26,8 +34,14 @@ export class Game extends Node {
     }
     _initScoreText() {
         this._score = 1000;
-        this.scoreText = new Label("Score: " + this._score, "blue", "40px");
+        this.scoreText = new Label("Score: " + this._score, "red", "32px");
+        this.scoreText.x = 32;
+        this.scoreText.y = 32;
         this.addChild(this.scoreText);
+    }
+    _initBoard() {
+        this.board = new Node();
+        this.addChild(this.board);
     }
     _initCards() {
         let cardsArray = [];
@@ -39,7 +53,11 @@ export class Game extends Node {
             cardsArray.push(card);
         }
         const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
-        this.createBoard(shuffleCards);
+        this.freezeClick = true;
+        this.createBoard(cardsArray.concat(cardsArray));
+        setTimeout(() => {
+            this.freezeClick = false;
+        }, 4000);
     }
 
     createBoard(array) {
@@ -47,14 +65,18 @@ export class Game extends Node {
             let card = new Card(index, arr.name, arr.img);
             let column = index % 5;
             let row = Math.floor(index / 5);
-            const SIZE_IMG = 110;
-            let left = 150 + (SIZE_IMG * column);
-            let top = 25 + (SIZE_IMG * row);
-            this.addChild(card);
-            gsap.to(card, {
-                duration: 3,
-                x: left,
-                y: top,
+            let widthStep = 110;
+            let heightStep = 110;
+            let left = 150;
+            let top = 25;
+            let x = left + (widthStep * column);
+            let y = top + (heightStep * row);
+            this.board.addChild(card);
+            this.timeline.to(card, {
+                duration: 0.2,
+                x: x,
+                y: y,
+                ease: "back",
                 onComplete: () => card.on("mousedown", this.onClickCard.bind(this))
             });
         });
@@ -72,8 +94,9 @@ export class Game extends Node {
                 this.countClick--;
                 return;
             }
-            this.secondCard = evt.target.node;
+            this.secondCard = card;
             this.secondCard.showFace();
+            this.freezeClick = true;
             setTimeout(this.checkForMatch.bind(this), 1000);
         } else if (this.countClick > 2) return;
     }
@@ -82,22 +105,45 @@ export class Game extends Node {
         if (this.firstCard.value === this.secondCard.value) {
             this.firstCard.hideCard();
             this.secondCard.hideCard();
+            this.pairRemain--;
             this.updateScore(200);
         } else {
             this.firstCard.showCover();
             this.secondCard.showCover();
             this.updateScore(-100);
         }
-        this.countClick = 0;
-        this.firstCard = null;
-        this.secondCard = null;
+        setTimeout(() => {
+            this.countClick = 0;
+            this.firstCard = null;
+            this.secondCard = null;
+            this.freezeClick = false;
+        }, 700);
+
     }
 
     updateScore(points) {
         this._score += points;
         this.scoreText.text = ("Score: " + this._score);
         if (this._score <= 0) {
-            alert('You lose');
+            while (this.board.elm.hasChildNodes()) {
+                this.board.elm.removeChild(this.board.elm.lastChild);
+            }
+            this.showGameOverText("YOU LOSE");
         }
+        if (this.pairRemain <= 0) {
+            this.showGameOverText("YOU WIN");
+        }
+    }
+
+    showGameOverText(value) {
+        this.gameOverText = new Label();
+        this.gameOverText.x = 200;
+        this.gameOverText.y = 100;
+        this.gameOverText.width = 440;
+        this.gameOverText.height = 200;
+        this.gameOverText.fontSize = "80px";
+        this.gameOverText.color = "blue";
+        this.gameOverText.text = value;
+        this.addChild(this.gameOverText);
     }
 }

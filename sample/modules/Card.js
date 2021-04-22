@@ -1,60 +1,57 @@
 import { Sprite } from "../lib/Sprite.js"
-import { Label } from "../lib/Label.js"
+
 
 export class Card extends Sprite {
     constructor(index, value, face) {
         super();
-        this._initScaleCard();
         this._initCard(index, value, face);
-    }
-
-    _initScaleCard() {
-        this.width = 100;
-        this.height = 100;
+        this.elm.style.border = "1px solid black";
+        this.isAnimating = false;
     }
 
     _initCard(index, value, face) {
         this.index = index;
         this.value = value;
-        this.cover = "./img/cardBg.jpg";
         this.face = face;
+        this.cover = "./img/cardBg.jpg";
+        this.width = 100;
+        this.height = 100;
+        this.x = 20;
+        this.y = 200;
         this.setImage(this.cover);
-    }
-
-    _initElement() {
-        super._initElement();
     }
 
     showFace() {
         let timeline = gsap.timeline();
         timeline.to(this, {
             duration: 0.25,
-            scaleX: 0
+            scaleX: 0,
+            isAnimating: true,
         });
         timeline.set(this, {
             setImage: this.face
         });
         timeline.to(this, {
             duration: 0.25,
-            scaleX: 1
+            scaleX: 1,
+            isAnimating: false,
         });
     }
 
     showCover() {
         let timeline = gsap.timeline();
-        let numberOnCard = new Label(`${this.index + 1}`, "black", 16);
-        numberOnCard.elm.style.position = "";
-        this.addChild(numberOnCard);
         timeline.to(this, {
             duration: 0.25,
-            scaleX: 0
+            scaleX: 0,
+            isAnimating: true,
         });
         timeline.set(this, {
             setImage: this.cover
         });
         timeline.to(this, {
             duration: 0.25,
-            scaleX: 1
+            scaleX: 1,
+            isAnimating: false,
         });
     }
     hideCard() {
@@ -69,6 +66,5 @@ export class Card extends Sprite {
             scale: 3,
             active: false
         });
-
     }
 }
