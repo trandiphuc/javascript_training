@@ -1,14 +1,16 @@
+import { Node } from "../lib/Node.js"
+import { Label } from "../lib/Label.js";
 import { Sprite } from "../lib/Sprite.js"
 
 
-export class Card extends Sprite {
+export class Card extends Node {
     constructor(index, value, face) {
         super();
         this._initCard(index, value, face);
-        this.elm.style.border = "1px solid black";
-        this.isAnimating = false;
+        this._initImageCard();
+        this._initIndexLabel(index);
+        
     }
-
     _initCard(index, value, face) {
         this.index = index;
         this.value = value;
@@ -16,9 +18,24 @@ export class Card extends Sprite {
         this.cover = "./img/cardBg.jpg";
         this.width = 100;
         this.height = 100;
-        this.x = 20;
+        this.x = 370;
         this.y = 200;
-        this.setImage(this.cover);
+        this.opacity = 0;
+        this.elm.style.border = "1px solid black";
+    }
+
+    _initIndexLabel(index) {
+        this.indexLabel = new Label(index, "black", "32px");
+        this.indexLabel.x = 35;
+        this.indexLabel.y = 35;
+        this.addChild(this.indexLabel);
+    }
+
+    _initImageCard() {
+        this.image = new Sprite(this.cover);
+        this.image.width = 100;
+        this.image.height = 100;
+        this.addChild(this.image);
     }
 
     showFace() {
@@ -26,15 +43,16 @@ export class Card extends Sprite {
         timeline.to(this, {
             duration: 0.25,
             scaleX: 0,
-            isAnimating: true,
         });
-        timeline.set(this, {
+        timeline.set(this.indexLabel, {
+            active: false,
+        });
+        timeline.set(this.image, {
             setImage: this.face
         });
         timeline.to(this, {
             duration: 0.25,
             scaleX: 1,
-            isAnimating: false,
         });
     }
 
@@ -43,17 +61,19 @@ export class Card extends Sprite {
         timeline.to(this, {
             duration: 0.25,
             scaleX: 0,
-            isAnimating: true,
         });
-        timeline.set(this, {
+        timeline.set(this.indexLabel, {
+            active: true,
+        });
+        timeline.set(this.image, {
             setImage: this.cover
         });
         timeline.to(this, {
             duration: 0.25,
             scaleX: 1,
-            isAnimating: false,
         });
     }
+    
     hideCard() {
         let timeline = gsap.timeline();
         timeline.set(this, {

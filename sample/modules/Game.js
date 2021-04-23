@@ -30,7 +30,7 @@ export class Game extends Node {
         btn.y = 200;
         btn.elm.style.background = "transparent";
         btn.on("click", () => {
-            this.resetGame();
+           // this.clearGame();
             this.initBackground();
             this.initNewGame();
         });
@@ -54,10 +54,10 @@ export class Game extends Node {
     }
     _initCards() {
         let cardsArray = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 1; i < 11; i++) {
             let card = {
                 name: i,
-                img: "./img/trucxanh" + (i + 1) + ".jpg"
+                img: "./img/trucxanh" + i + ".jpg"
             }
             cardsArray.push(card);
         }
@@ -71,7 +71,8 @@ export class Game extends Node {
 
     createBoard(array) {
         array.forEach((arr, index) => {
-            let card = new Card(index, arr.name, arr.img);
+            let card = new Card((index + 1), arr.name, arr.img);
+            card.zIndex = 20 - index;
             let column = index % 5;
             let row = Math.floor(index / 5);
             let widthStep = 110;
@@ -82,23 +83,35 @@ export class Game extends Node {
             let y = top + (heightStep * row);
             this.board.addChild(card);
             this.timeline.to(card, {
+                duration: 0.05,
+                opacity: 1,
+            })
+            this.timeline.to(card, {
+                duration: 0.05,
+                opacity: 0,
+            })
+            this.timeline.to(card, {
                 duration: 0.2,
+                opacity: 1,
                 x: x,
                 y: y,
+                zIndex: 0,
                 ease: "back",
-                onComplete: () => card.on("mousedown", this.onClickCard.bind(this))
             });
+            card.on("mousedown", this.onClickCard.bind(this));
         });
     }
-
+    onClickCardtest(index, value) {
+        console.log(index, value)
+    }
     onClickCard(evt) {
         this.countClick++;
         if (this.countClick === 1) {
-            let card = evt.target.node;
+            let card = evt.target.parentNode.node;
             this.firstCard = card;
             this.firstCard.showFace();
         } else if (this.countClick === 2) {
-            let card = evt.target.node;
+            let card = evt.target.parentNode.node;
             if (card === this.firstCard) {
                 this.countClick--;
                 return;
@@ -149,7 +162,7 @@ export class Game extends Node {
         }
         this.initPlayButton();
     }
-    resetGame() {
+    clearGame() {
         while (this != null && this.elm.hasChildNodes()) {
             this.elm.removeChild(this.elm.lastChild);
         }
