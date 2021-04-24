@@ -4,5 +4,5 @@ var game = new Game();
 document.body.appendChild(game.elm);
 
 game.initBackground();
-game.initPlayButton();
+game.initPlayButton("PLAY", 300, 200, "56px");
 

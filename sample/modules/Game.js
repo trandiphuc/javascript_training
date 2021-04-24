@@ -13,9 +13,11 @@ export class Game extends Node {
         this.freezeClick = false;
         this.score = 1000;
         this.timeline = gsap.timeline();
+        this.timeline1 = gsap.timeline();
         this._initBoard();
         this._initCards();
         this._initScoreText();
+        this.initPlayButton("RESET", 20, 200, "24px")
         this.elm.addEventListener("mousedown", e => {
             if (this.freezeClick) {
                 e.stopPropagation();
@@ -24,13 +26,13 @@ export class Game extends Node {
         }, true); 
     }
 
-    initPlayButton() {
-        let btn = new Button("PLAY", "black", "56px");
-        btn.x = 300;
-        btn.y = 200;
+    initPlayButton(text, x, y, fontsize) {
+        let btn = new Button(text, "black", fontsize);
+        btn.x = x;
+        btn.y = y;
         btn.elm.style.background = "transparent";
         btn.on("click", () => {
-           // this.clearGame();
+            this.clearGame();
             this.initBackground();
             this.initNewGame();
         });
@@ -89,30 +91,31 @@ export class Game extends Node {
             this.timeline.to(card, {
                 duration: 0.05,
                 opacity: 0,
+                onComplete: function() {
+                    this.timeline1.to(card, {
+                        duration: 0.1,
+                        opacity:1,
+                    })
+                    this.timeline1.to(card, {
+                        duration: 0.2,
+                        x: x,
+                        y: y,
+                        zIndex: 0,
+                        ease: "back",
+                        delay: 1
+                    })
+                }.bind(this)
             })
-            this.timeline.to(card, {
-                duration: 0.2,
-                opacity: 1,
-                x: x,
-                y: y,
-                zIndex: 0,
-                ease: "back",
-            });
-            card.on("mousedown", this.onClickCard.bind(this));
         });
-    }
-    onClickCardtest(index, value) {
-        console.log(index, value)
     }
     onClickCard(evt) {
         this.countClick++;
         if (this.countClick === 1) {
-            let card = evt.target.parentNode.node;
-            this.firstCard = card;
+            this.firstCard = evt.target.parentNode.node;
             this.firstCard.showFace();
         } else if (this.countClick === 2) {
             let card = evt.target.parentNode.node;
-            if (card === this.firstCard) {
+            if (card.index === this.firstCard.index) {
                 this.countClick--;
                 return;
             }
@@ -144,23 +147,37 @@ export class Game extends Node {
     }
 
     updateScore(points) {
-        this.score += points;
-        this.scoreText.text = ("Score: " + this.score);
-        if (this.score <= 0) {
-            this.showGameOverText("YOU LOSE");
-            this.endGame();
+        let score = this.score + points;
+        let obj = {
+            value: this.score
         }
-        if (this.pairRemain <= 0) {
-            this.showGameOverText("YOU WIN");
-            this.endGame();
-        }
+        TweenLite.to(obj, 0.4, {
+            value: score,
+            roundProps: {
+                value: 10
+            },
+            onUpdate: function() {
+                this.scoreText.text = `Score: ${obj.value}`;
+                this.score = obj.value;
+            }.bind(this),
+            onComplete: function() {
+                if (this.score <= 0) {
+                    this.showGameOverText("YOU LOSE");
+                    this.endGame();
+                }
+                if (this.pairRemain <= 0) {
+                    this.showGameOverText("YOU WIN");
+                    this.endGame();
+                }
+            }.bind(this)
+        });
     }
 
     endGame() {
         while (this.board != null && this.board.elm.hasChildNodes()) {
             this.board.elm.removeChild(this.board.elm.lastChild);
         }
-        this.initPlayButton();
+        this.initPlayButton("PLAY AGAIN", 300, 200), "56px";
     }
     clearGame() {
         while (this != null && this.elm.hasChildNodes()) {
