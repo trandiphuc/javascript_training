@@ -25,7 +25,7 @@ export class Card extends Node {
     }
 
     _initIndexLabel(index) {
-        this.indexLabel = new Label(index, "black", "32px");
+        this.indexLabel = new Label(index + 1, "black", "32px");
         this.indexLabel.x = 35;
         this.indexLabel.y = 35;
         this.addChild(this.indexLabel);

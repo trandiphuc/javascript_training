@@ -12,18 +12,19 @@ export class Game extends Node {
         this.secondCard = null;
         this.freezeClick = false;
         this.score = 1000;
-        this.timeline = gsap.timeline();
-        this.timeline1 = gsap.timeline();
-        this._initBoard();
-        this._initCards();
-        this._initScoreText();
-        this.initPlayButton("RESET", 20, 200, "24px")
         this.elm.addEventListener("mousedown", e => {
             if (this.freezeClick) {
                 e.stopPropagation();
                 e.preventDefault();
             }
-        }, true); 
+        }, true);
+        this.cardsGame = [];
+        this._initBoard();
+        this._initCards();
+        this._initScoreText();
+        this.initPlayButton("RESET", 20, 200, "24px")
+
+
     }
 
     initPlayButton(text, x, y, fontsize) {
@@ -55,6 +56,8 @@ export class Game extends Node {
         this.addChild(this.board);
     }
     _initCards() {
+        this.freezeClick = true;
+        let timeline = gsap.timeline();
         let cardsArray = [];
         for (let i = 1; i < 11; i++) {
             let card = {
@@ -63,18 +66,28 @@ export class Game extends Node {
             }
             cardsArray.push(card);
         }
-        const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
-        this.freezeClick = true;
-        this.createBoard(shuffleCards);
-        setTimeout(() => {
-            this.freezeClick = false;
-        }, 4000);
-    }
 
-    createBoard(array) {
-        array.forEach((arr, index) => {
-            let card = new Card((index + 1), arr.name, arr.img);
+        const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
+        shuffleCards.forEach((arr, index) => {
+            let card = new Card(index, arr.name, arr.img);
             card.zIndex = 20 - index;
+            this.cardsGame.push(card);
+
+            timeline.to(card, {
+                duration: 0.1,
+                opacity: 1
+            });
+            timeline.to(card, {
+                duration: 0.1,
+                opacity: 0
+            });
+            card.on('mousedown', this.onClickCard.bind(this, card.index, card.value));
+            this.board.addChild(card);
+        })
+
+        timeline.set(this.cardsGame, {opacity: 1});
+
+        this.cardsGame.forEach((arr, index) => {
             let column = index % 5;
             let row = Math.floor(index / 5);
             let widthStep = 110;
@@ -83,47 +96,39 @@ export class Game extends Node {
             let top = 25;
             let x = left + (widthStep * column);
             let y = top + (heightStep * row);
-            this.board.addChild(card);
-            this.timeline.to(card, {
-                duration: 0.05,
-                opacity: 1,
-            })
-            this.timeline.to(card, {
-                duration: 0.05,
-                opacity: 0,
-                onComplete: function() {
-                    this.timeline1.to(card, {
-                        duration: 0.1,
-                        opacity:1,
-                    })
-                    this.timeline1.to(card, {
-                        duration: 0.2,
-                        x: x,
-                        y: y,
-                        zIndex: 0,
-                        ease: "back",
-                        delay: 1
-                    })
-                }.bind(this)
-            })
-        });
+            timeline.to(arr, {
+                duration: 0.5,
+                zIndex: 0,
+                x: x,
+                y: y,
+                ease: "back" 
+            });
+        })
+        
+        timeline.set(this, {
+            onComplete: () => {
+                this.freezeClick = false;
+            }
+        })
     }
-    onClickCard(evt) {
+
+    onClickCard(index, value) {
         this.countClick++;
+        console.log(index, value);
         if (this.countClick === 1) {
-            this.firstCard = evt.target.parentNode.node;
+            this.firstCard = this.cardsGame[index];
             this.firstCard.showFace();
         } else if (this.countClick === 2) {
-            let card = evt.target.parentNode.node;
-            if (card.index === this.firstCard.index) {
+            if(index === this.firstCard.index){
                 this.countClick--;
                 return;
-            }
-            this.secondCard = card;
-            this.secondCard.showFace();
+            } 
             this.freezeClick = true;
+            this.secondCard = this.cardsGame[index];
+            this.secondCard.showFace();
             setTimeout(this.checkForMatch.bind(this), 1000);
-        } else if (this.countClick > 2) return;
+        } else if (this.countClick >= 2) return;
+
     }
 
     checkForMatch() {
@@ -143,7 +148,6 @@ export class Game extends Node {
             this.secondCard = null;
             this.freezeClick = false;
         }, 700);
-
     }
 
     updateScore(points) {
@@ -156,11 +160,11 @@ export class Game extends Node {
             roundProps: {
                 value: 10
             },
-            onUpdate: function() {
+            onUpdate: function () {
                 this.scoreText.text = `Score: ${obj.value}`;
                 this.score = obj.value;
             }.bind(this),
-            onComplete: function() {
+            onComplete: function () {
                 if (this.score <= 0) {
                     this.showGameOverText("YOU LOSE");
                     this.endGame();
