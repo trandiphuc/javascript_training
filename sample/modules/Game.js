@@ -3,6 +3,7 @@ import { Sprite } from "../lib/Sprite.js";
 import { Label } from "../lib/Label.js";
 import { Card } from "../modules/Card.js";
 import { Button } from "../lib/Button.js";
+import { Audio } from "../lib/Audio.js";
 
 export class Game extends Node {
     initNewGame() {
@@ -12,6 +13,8 @@ export class Game extends Node {
         this.secondCard = null;
         this.freezeClick = false;
         this.score = 1000;
+        let themeSong = new Audio("./audio/theme_song.mp3");
+        themeSong.playLoop();
         this.elm.addEventListener("mousedown", e => {
             if (this.freezeClick) {
                 e.stopPropagation();
@@ -23,8 +26,6 @@ export class Game extends Node {
         this._initCards();
         this._initScoreText();
         this.initPlayButton("RESET", 20, 200, "24px")
-
-
     }
 
     initPlayButton(text, x, y, fontsize) {
@@ -33,6 +34,8 @@ export class Game extends Node {
         btn.y = y;
         btn.elm.style.background = "transparent";
         btn.on("click", () => {
+            let clickSound = new Audio("./audio/click.wav");
+            clickSound.playOneShot();
             this.clearGame();
             this.initBackground();
             this.initNewGame();
@@ -68,25 +71,29 @@ export class Game extends Node {
         }
 
         const shuffleCards = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
+        //render card
         shuffleCards.forEach((arr, index) => {
             let card = new Card(index, arr.name, arr.img);
             card.zIndex = 20 - index;
             this.cardsGame.push(card);
-
             timeline.to(card, {
-                duration: 0.1,
-                opacity: 1
+                duration: 0.05,
+                opacity: 1,
+                onComplete: () => {
+                    let shuffleSound = new Audio("./audio/shuffle.wav");
+                    shuffleSound.playOneShot();
+                }
             });
             timeline.to(card, {
-                duration: 0.1,
-                opacity: 0
+                duration: 0.05,
+                opacity: 0,
             });
             card.on('mousedown', this.onClickCard.bind(this, card.index, card.value));
             this.board.addChild(card);
         })
-
+        //set all image appear
         timeline.set(this.cardsGame, {opacity: 1});
-
+        //draw every card into board
         this.cardsGame.forEach((arr, index) => {
             let column = index % 5;
             let row = Math.floor(index / 5);
@@ -97,14 +104,18 @@ export class Game extends Node {
             let x = left + (widthStep * column);
             let y = top + (heightStep * row);
             timeline.to(arr, {
-                duration: 0.5,
+                duration: 0.3,
                 zIndex: 0,
                 x: x,
                 y: y,
-                ease: "back" 
+                ease: "back.inOut(2)",
+                onComplete: () => {
+                    let drawSound = new Audio("./audio/shuffle.wav");
+                    drawSound.playOneShot();
+                }
             });
         })
-        
+        //after complete draw card animation
         timeline.set(this, {
             onComplete: () => {
                 this.freezeClick = false;
@@ -113,6 +124,8 @@ export class Game extends Node {
     }
 
     onClickCard(index, value) {
+        let clickSound = new Audio("./audio/click.wav");
+        clickSound.playOneShot();
         this.countClick++;
         console.log(index, value);
         if (this.countClick === 1) {
@@ -132,14 +145,19 @@ export class Game extends Node {
     }
 
     checkForMatch() {
+        let sound = new Audio();
         if (this.firstCard.value === this.secondCard.value) {
             this.firstCard.hideCard();
             this.secondCard.hideCard();
             this.pairRemain--;
+            sound.path = "./audio/bell.wav";
+            sound.playOneShot();
             this.updateScore(200);
         } else {
             this.firstCard.showCover();
             this.secondCard.showCover();
+            sound.path = "./audio/wrong.wav";
+            sound.playOneShot();
             this.updateScore(-100);
         }
         setTimeout(() => {
@@ -181,7 +199,8 @@ export class Game extends Node {
         while (this.board != null && this.board.elm.hasChildNodes()) {
             this.board.elm.removeChild(this.board.elm.lastChild);
         }
-        this.initPlayButton("PLAY AGAIN", 300, 200), "56px";
+        this.elm.removeChild(this.elm.querySelector("button"));
+        this.initPlayButton("RESTART", 320, 200, "56px");
     }
     clearGame() {
         while (this != null && this.elm.hasChildNodes()) {
