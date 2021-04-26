@@ -13,8 +13,8 @@ export class Game extends Node {
         this.secondCard = null;
         this.freezeClick = false;
         this.score = 1000;
-        let themeSong = new Audio("./audio/theme_song.mp3");
-        themeSong.playLoop();
+        this.themeSong = new Audio("./audio/theme_song.mp3");
+        this.themeSong.playLoop();
         this.elm.addEventListener("mousedown", e => {
             if (this.freezeClick) {
                 e.stopPropagation();
@@ -80,8 +80,7 @@ export class Game extends Node {
                 duration: 0.05,
                 opacity: 1,
                 onComplete: () => {
-                    let shuffleSound = new Audio("./audio/shuffle.wav");
-                    shuffleSound.playOneShot();
+                    this.playSoundFX("shuffle");
                 }
             });
             timeline.to(card, {
@@ -92,7 +91,7 @@ export class Game extends Node {
             this.board.addChild(card);
         })
         //set all image appear
-        timeline.set(this.cardsGame, {opacity: 1});
+        timeline.set(this.cardsGame, { opacity: 1 });
         //draw every card into board
         this.cardsGame.forEach((arr, index) => {
             let column = index % 5;
@@ -110,8 +109,7 @@ export class Game extends Node {
                 y: y,
                 ease: "back.inOut(2)",
                 onComplete: () => {
-                    let drawSound = new Audio("./audio/shuffle.wav");
-                    drawSound.playOneShot();
+                    this.playSoundFX("draw");
                 }
             });
         })
@@ -124,18 +122,17 @@ export class Game extends Node {
     }
 
     onClickCard(index, value) {
-        let clickSound = new Audio("./audio/click.wav");
-        clickSound.playOneShot();
+        this.playSoundFX("click");
         this.countClick++;
         console.log(index, value);
         if (this.countClick === 1) {
             this.firstCard = this.cardsGame[index];
             this.firstCard.showFace();
         } else if (this.countClick === 2) {
-            if(index === this.firstCard.index){
+            if (index === this.firstCard.index) {
                 this.countClick--;
                 return;
-            } 
+            }
             this.freezeClick = true;
             this.secondCard = this.cardsGame[index];
             this.secondCard.showFace();
@@ -145,19 +142,16 @@ export class Game extends Node {
     }
 
     checkForMatch() {
-        let sound = new Audio();
         if (this.firstCard.value === this.secondCard.value) {
             this.firstCard.hideCard();
             this.secondCard.hideCard();
             this.pairRemain--;
-            sound.path = "./audio/bell.wav";
-            sound.playOneShot();
+            this.playSoundFX("match");
             this.updateScore(200);
         } else {
             this.firstCard.showCover();
             this.secondCard.showCover();
-            sound.path = "./audio/wrong.wav";
-            sound.playOneShot();
+            this.playSoundFX("unmatch");
             this.updateScore(-100);
         }
         setTimeout(() => {
@@ -184,24 +178,33 @@ export class Game extends Node {
             }.bind(this),
             onComplete: function () {
                 if (this.score <= 0) {
-                    this.showGameOverText("YOU LOSE");
-                    this.endGame();
+                    this.endGame("lose");
                 }
                 if (this.pairRemain <= 0) {
-                    this.showGameOverText("YOU WIN");
-                    this.endGame();
+                    this.endGame("win");
                 }
             }.bind(this)
         });
     }
 
-    endGame() {
+    endGame(value) {
         while (this.board != null && this.board.elm.hasChildNodes()) {
             this.board.elm.removeChild(this.board.elm.lastChild);
         }
+        if (value === "win") {
+            this.showGameOverText("YOU WIN");
+            this.themeSong.pause();
+            this.playSoundFX(value);
+        } else if (value === "lose") {
+            this.showGameOverText("YOU LOSE");
+            this.themeSong.pause();
+            this.playSoundFX(value);
+        } else return;
+
         this.elm.removeChild(this.elm.querySelector("button"));
-        this.initPlayButton("RESTART", 320, 200, "56px");
+        this.initPlayButton("RESTART", 280, 200, "56px");
     }
+
     clearGame() {
         while (this != null && this.elm.hasChildNodes()) {
             this.elm.removeChild(this.elm.lastChild);
@@ -209,7 +212,7 @@ export class Game extends Node {
     }
     showGameOverText(value) {
         this.gameOverText = new Label();
-        this.gameOverText.x = 200;
+        this.gameOverText.x = 240;
         this.gameOverText.y = 100;
         this.gameOverText.width = 440;
         this.gameOverText.height = 200;
@@ -217,5 +220,10 @@ export class Game extends Node {
         this.gameOverText.color = "blue";
         this.gameOverText.text = value;
         this.addChild(this.gameOverText);
+    }
+
+    playSoundFX(value) {
+        let soundFX = new Audio(`./audio/${value}.wav`);
+        soundFX.playOneShot();
     }
 }
